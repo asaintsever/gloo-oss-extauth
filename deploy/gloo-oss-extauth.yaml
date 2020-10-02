@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gloo-oss-extauth
+  namespace: gloo-system
+  labels:
+    app: gloo-oss-extauth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gloo-oss-extauth
+  template:
+    metadata:
+      labels:
+        app: gloo-oss-extauth
+    spec:
+      containers:
+      - name: gloo-oss-extauth
+        image: asaintsever/gloo-oss-extauth
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: gloo-oss-extauth
+  namespace: gloo-system
+spec:
+  selector:
+    app: gloo-oss-extauth
+  ports:
+  - name: grpc
+    protocol: TCP
+    port: 80
+    targetPort: 8000
+---
+apiVersion: gloo.solo.io/v1
+kind: Upstream
+metadata:
+  name: gloo-oss-extauth
+  namespace: gloo-system
+spec:
+  kube:
+    serviceName: gloo-oss-extauth
+    serviceNamespace: gloo-system
+    servicePort: 80
+    serviceSpec:
+      grpc: {}
+  useHttp2: true

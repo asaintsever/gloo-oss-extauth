@@ -1,0 +1,28 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: vs-remote-jwks
+spec:
+  virtualHost:
+    domains:
+    - '*'
+    options:
+      extauth:
+        customAuth: # Configuration for our Custom Auth server
+          contextExtensions:
+            jwt_validation: "true" # optional: enable JWT validation (default: false)
+            jwks_url: <URL for your JWKS> # mandatory: JWKS fetched from remote address
+            jwt_issuer: <JWT issuer> # mandatory
+            jwt_audience: <Audience you are expecting> # optional
+            jwt_forward: "true" # optional: whether the original JWT should be forwarded to the upstream (default: false)
+            jwt_extract_claims: scope,sub # optional: claims to extract from verified JWT in 'x-jwt-<claim name>' headers. Claims cannot be extracted if validation disabled.
+    routes:
+    - matchers:
+      - prefix: /echo
+      options:
+        prefixRewrite: /
+      routeAction:
+        single:
+          upstream:
+            name: default-echo-80
+            namespace: gloo-system

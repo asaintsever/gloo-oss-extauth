@@ -1,0 +1,23 @@
+apiVersion: gloo.solo.io/v1
+kind: Settings
+metadata:
+  name: default
+  namespace: gloo-system
+spec:
+  discoveryNamespace: gloo-system
+  gateway:
+    validation:
+      alwaysAccept: true
+      proxyValidationServerAddr: gloo:9988
+  gloo:
+    xdsBindAddr: 0.0.0.0:9977
+  kubernetesArtifactSource: {}
+  kubernetesConfigSource: {}
+  kubernetesSecretSource: {}
+  refreshRate: 60s
+  # This is the part to add to your Gloo Settings to declare our custom auth server
+  extauth:
+    extauthzServerRef:
+      name: gloo-oss-extauth
+      namespace: gloo-system
+    requestTimeout: 0.5s
